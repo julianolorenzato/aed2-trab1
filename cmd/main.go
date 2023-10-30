@@ -11,7 +11,7 @@ func main() {
 
 	var option int
 
-	for {
+	for option != 4 {
 		fmt.Println("1 - Adicionar vértice")
 		fmt.Println("2 - Adicionar aresta")
 		fmt.Println("3 - Mostrar valores")
@@ -26,6 +26,7 @@ func main() {
 			var value int
 			fmt.Println("Digite o valor do vértice")
 			fmt.Scanf("%d", &value)
+			fmt.Println()
 
 			err := g.AddVertex(value)
 			if err != nil {
@@ -40,6 +41,7 @@ func main() {
 			fmt.Scanf("%d", &destIndex)
 			fmt.Println("Digite o peso da aresta")
 			fmt.Scanf("%d", &weight)
+			fmt.Println()
 
 			err := g.AddEdge(srcIndex, destIndex, weight)
 			if err != nil {
@@ -48,9 +50,7 @@ func main() {
 
 		case 3:
 			g.PrintAll()
-
-		default:
-			break
+			fmt.Println()
 		}
 	}
 }
