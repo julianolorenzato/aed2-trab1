@@ -1,8 +1,6 @@
-package graph
+package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 const MAX = 20
 
@@ -85,5 +83,59 @@ func (g *Graph) PrintAll() {
 		}
 
 		fmt.Println()
+	}
+}
+
+func main() {
+	g := NewGraph()
+
+	var option int
+
+	for option != 4 {
+		fmt.Println("1 - Adicionar vértice")
+		fmt.Println("2 - Adicionar aresta")
+		fmt.Println("3 - Mostrar valores")
+		fmt.Println("4 - Sair")
+		fmt.Println()
+		
+		fmt.Scanf("%d", &option)
+		fmt.Println()
+
+		switch option {
+		case 1:
+			var value int
+			fmt.Println("Digite o valor do vértice")
+			fmt.Scanf("%d", &value)
+
+			if value < 0 {
+				fmt.Println("O valor do vértice deve ser positivo")
+			} else {
+				err := g.AddVertex(value)
+				if err != nil {
+					fmt.Println(err.Error())
+				}
+			}
+			fmt.Println()
+
+
+		case 2:
+			var srcIndex, destIndex, weight int
+			fmt.Println("Digite o índice do vértice de origem")
+			fmt.Scanf("%d", &srcIndex)
+			fmt.Println("Digite o índice do vértice de destino")
+			fmt.Scanf("%d", &destIndex)
+			fmt.Println("Digite o peso da aresta")
+			fmt.Scanf("%d", &weight)
+			fmt.Println()
+
+			err := g.AddEdge(srcIndex, destIndex, weight)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
+
+		case 3:
+			g.PrintAll()
+			fmt.Println()
+		}
 	}
 }
