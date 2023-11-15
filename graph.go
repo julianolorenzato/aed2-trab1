@@ -3,6 +3,7 @@ package main
 import "fmt"
 
 const MAX = 20
+const INFINITY = 2 << 64
 
 type Graph struct {
 	Vertices [MAX]*vertex // Array de valores do tipo *vertex
@@ -66,6 +67,25 @@ func (g *Graph) AddEdge(srcIndex, destIndex, weight int) error {
 	return nil
 }
 
+func (g *Graph) Dijkstra(src, dest int) {
+	isVisited := [MAX]bool{false}
+	path := [MAX]int{-1}
+	costs := [MAX]int{INFINITY}
+	costs[src] = 0
+
+	for i := 0; i < MAX; i++ {
+		if isVisited[i] {
+			continue
+		}
+
+		for i, e := range g.Vertices[i].Edges {
+			if e == nil {
+				continue
+			}
+		}
+	}
+}
+
 func (g *Graph) PrintAll() {
 	for i, v := range g.Vertices {
 		if v == nil {
@@ -97,7 +117,7 @@ func main() {
 		fmt.Println("3 - Mostrar valores")
 		fmt.Println("4 - Sair")
 		fmt.Println()
-		
+
 		fmt.Scanf("%d", &option)
 		fmt.Println()
 
@@ -116,7 +136,6 @@ func main() {
 				}
 			}
 			fmt.Println()
-
 
 		case 2:
 			var srcIndex, destIndex, weight int
