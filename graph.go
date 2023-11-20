@@ -1,33 +1,37 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+	"slices"
+)
 
 const MAX = 20
-const INFINITY = 2 << 64
+const INFINITY = math.MaxInt32
 
 type Graph struct {
-	Vertices [MAX]*vertex // Array de valores do tipo *vertex
+	Vertices [MAX]*Vertex // Array de valores do tipo *Vertex
 }
 
-type vertex struct {
+type Vertex struct {
 	Val   any        // O valor do vertice pode ser de qualquer tipo
-	Edges [MAX]*edge // Array de valores do tipo *edge
+	Edges [MAX]*Edge // Array de valores do tipo *edge
 }
 
-type edge struct {
-	Weight     int
-	DestVertex *vertex
+type Edge struct {
+	Weight int
+	//DestVertex *vertex
 }
 
 // Construtor
 func NewGraph() *Graph {
 	return &Graph{
-		Vertices: [20]*vertex{nil},
+		Vertices: [MAX]*Vertex{nil},
 	}
 }
 
 func (g *Graph) AddVertex(val any) error {
-	newVertex := &vertex{Val: val, Edges: [20]*edge{nil}}
+	newVertex := &Vertex{Val: val, Edges: [MAX]*Edge{nil}}
 
 	for i, v := range g.Vertices {
 		if v == nil {
@@ -57,9 +61,9 @@ func (g *Graph) AddEdge(srcIndex, destIndex, weight int) error {
 		return fmt.Errorf("A aresta que liga o vertice %v ao vertice %v já existe.", srcIndex, destIndex)
 	}
 
-	newEdge := &edge{
-		Weight:     weight,
-		DestVertex: g.Vertices[destIndex],
+	newEdge := &Edge{
+		Weight: weight,
+		//DestVertex: g.Vertices[destIndex],
 	}
 
 	g.Vertices[srcIndex].Edges[destIndex] = newEdge
@@ -67,23 +71,76 @@ func (g *Graph) AddEdge(srcIndex, destIndex, weight int) error {
 	return nil
 }
 
-func (g *Graph) Dijkstra(src, dest int) {
-	isVisited := [MAX]bool{false}
-	path := [MAX]int{-1}
-	costs := [MAX]int{INFINITY}
+func (g *Graph) Dijkstra(src, dest int) (minCost int, path []int) {
+	var isVisited [MAX]bool
+	var costs [MAX]int
+	var previous [MAX]int
+
+	for i := 0; i < MAX; i++ {
+		costs[i] = INFINITY
+	}
 	costs[src] = 0
 
 	for i := 0; i < MAX; i++ {
+		previous[i] = -1
+	}
+
+	curr := src
+	for curr != -1 {
+		isVisited[curr] = true
+
+		for i, edge := range g.Vertices[curr].Edges {
+			if edge == nil {
+				continue
+			}
+
+			foundCost := costs[curr] + edge.Weight
+
+			if foundCost < costs[i] {
+				costs[i] = foundCost
+				previous[i] = curr
+			}
+		}
+
+		curr = findNextIndex(costs, isVisited)
+	}
+
+	return costs[dest], buildPath(src, dest, previous)
+}
+
+func findNextIndex(costs [MAX]int, isVisited [MAX]bool) int {
+	value := INFINITY
+	index := -1
+
+	for i, v := range costs {
 		if isVisited[i] {
 			continue
 		}
 
-		for i, e := range g.Vertices[i].Edges {
-			if e == nil {
-				continue
-			}
+		if v < value {
+			value = v
+			index = i
 		}
 	}
+
+	return index
+}
+
+func buildPath(source, destiny int, previous [MAX]int) []int {
+	path := make([]int, 0)
+	path = append(path, destiny)
+
+	curr := previous[destiny]
+	for curr != source {
+		path = append(path, curr)
+		curr = previous[curr]
+	}
+
+	path = append(path, source)
+
+	slices.Reverse(path)
+
+	return path
 }
 
 func (g *Graph) PrintAll() {
@@ -111,11 +168,12 @@ func main() {
 
 	var option int
 
-	for option != 4 {
+	for option != 5 {
 		fmt.Println("1 - Adicionar vértice")
 		fmt.Println("2 - Adicionar aresta")
-		fmt.Println("3 - Mostrar valores")
-		fmt.Println("4 - Sair")
+		fmt.Println("3 - Mostrar grafo")
+		fmt.Println("4 - Custo mínimo entre dois vértices")
+		fmt.Println("5 - Sair")
 		fmt.Println()
 
 		fmt.Scanf("%d", &option)
@@ -154,6 +212,20 @@ func main() {
 
 		case 3:
 			g.PrintAll()
+			fmt.Println()
+		case 4:
+			var source, destiny int
+			fmt.Println("Digite o índice do vértice de saída")
+			fmt.Scanf("%d", &source)
+			fmt.Println("Digite o índice do vértice de chegada")
+			fmt.Scanf("%d", &destiny)
+			minCost, path := g.Dijkstra(source, destiny)
+			fmt.Println("Custo mínimo:", minCost)
+			fmt.Print("Caminho de custo mínimo:")
+			for _, v := range path {
+				fmt.Print(" -> ", v)
+			}
+			fmt.Println()
 			fmt.Println()
 		}
 	}
